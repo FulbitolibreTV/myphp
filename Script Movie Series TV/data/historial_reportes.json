@@ -1,0 +1,26 @@
+[
+    {
+        "id": 2,
+        "fecha": "2025-08-25 07:17:08",
+        "tipo": "Publicidad",
+        "pelicula": "",
+        "mensaje": "afsafafafafafafaf",
+        "nombrePublicidad": "sa",
+        "contactoPublicidad": "asafa",
+        "ip": "::1",
+        "accion": "eliminado",
+        "fecha_accion": "2025-08-25 07:17:16"
+    },
+    {
+        "id": 1,
+        "fecha": "2025-08-25 07:17:00",
+        "tipo": "Link ca\u00eddo",
+        "pelicula": "msaf",
+        "mensaje": "asdafafff adfsdfsdf",
+        "nombrePublicidad": "",
+        "contactoPublicidad": "",
+        "ip": "::1",
+        "accion": "eliminado",
+        "fecha_accion": "2025-08-25 07:17:18"
+    }
+]

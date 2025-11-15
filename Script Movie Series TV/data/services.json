@@ -1,0 +1,24 @@
+[
+    {
+        "id": "service_1",
+        "title": "Diseño Gráfico y Branding",
+        "icon": "fas fa-palette",
+        "features": [
+            "Desarrollo de Identidad Corporativa (Logos, Manuales de Marca)",
+            "Producción de Material Audiovisual de Alta Calidad"
+        ],
+        "link": "catalogo-diseno.php",
+        "link_text": "Explorar Diseño"
+    },
+    {
+        "id": "service_2",
+        "title": "Desarrollo de Aplicaciones Móviles",
+        "icon": "fas fa-mobile-alt",
+        "features": [
+            "Creación de Aplicaciones Nativas y Híbridas a Medida",
+            "Estrategias de Publicación y Optimización en Tiendas Digitales"
+        ],
+        "link": "catalogo-apps.php",
+        "link_text": "Ver Proyectos Apps"
+    }
+]

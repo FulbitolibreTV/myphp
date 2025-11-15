@@ -1,0 +1,5 @@
+{
+    "bot_token": "token bot",
+    "chat_id": "el usuario de tu canal",
+    "base_url": "http:\/\/localhost\/adminventa"
+}

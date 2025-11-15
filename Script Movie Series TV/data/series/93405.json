@@ -1,0 +1,37 @@
+{
+    "id": "93405",
+    "title": "El juego del calamar",
+    "overview": "Cientos de personas con problemas de dinero aceptan una invitación rarísima para competir en juegos infantiles. Dentro los esperan un tentador premio y desafíos letales.",
+    "poster_path": "\/g72YfmqUU0AlbDXRiYmDZWs28f7.jpg",
+    "backdrop_path": "\/5aE1kxWg6RhgQxJTXTxifv4uq7P.jpg",
+    "release_date": "2021-09-17",
+    "category": "Acción",
+    "trailer": "sa_6BS_VY-M",
+    "players": [
+        {
+            "label": "Default",
+            "url": "#"
+        }
+    ],
+    "seasons": {
+        "1": {
+            "1": {
+                "url": "http:\/\/files.corpsrtony.com\/uploads\/Testers.mp4"
+            },
+            "2": {
+                "url": "https:\/\/test-streams.mux.dev\/x36xhzz\/x36xhzz.m3u8"
+            },
+            "3": {
+                "url": "http:\/\/files.corpsrtony.com\/uploads\/Testers.mp4"
+            }
+        },
+        "2": {
+            "1": {
+                "url": "http:\/\/files.corpsrtony.com\/uploads\/Testers.mp4"
+            },
+            "2": {
+                "url": "http:\/\/files.corpsrtony.com\/uploads\/Testers.mp4"
+            }
+        }
+    }
+}

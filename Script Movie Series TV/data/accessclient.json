@@ -1,0 +1,16 @@
+[
+    {
+        "nombre": "ee",
+        "pin": "33",
+        "estado": "activo",
+        "dias": 30,
+        "creado": "2025-07-26"
+    },
+    {
+        "nombre": "dd",
+        "pin": "eee",
+        "estado": "activo",
+        "dias": 30,
+        "creado": "2025-07-26"
+    }
+]

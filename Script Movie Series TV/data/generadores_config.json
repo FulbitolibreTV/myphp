@@ -1,0 +1,11 @@
+<?php
+require_once '../config.php';
+if (!check_session() || !in_array($_SESSION['role'], ['admin', 'super_admin'])) {
+    http_response_code(403);
+    exit('No autorizado');
+}
+
+$data = json_decode(file_get_contents('php://input'), true);
+$config_file = '../data/generadores_config.json';
+file_put_contents($config_file, json_encode(['enabled' => !empty($data['enabled'])], JSON_PRETTY_PRINT));
+echo 'Guardado correctamente';

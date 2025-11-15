@@ -1,0 +1,14 @@
+[
+    {
+        "id": "project_1",
+        "title": "Portal de Aplicaciones Corporativas",
+        "icon": "fas fa-sitemap",
+        "url": "https:\/\/corpsrtonyoficial.blogspot.com"
+    },
+    {
+        "id": "project_2",
+        "title": "Plataforma Gastronómica \"Bambi Pollo\"",
+        "icon": "fas fa-drumstick-bite",
+        "url": "https:\/\/bambipollo.blogspot.com"
+    }
+]

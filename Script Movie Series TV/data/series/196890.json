@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>El gran guerrero — Ficha</title>
+
+  <!-- Metadatos -->
+  <meta property="og:title" content="El gran guerrero" />
+  <meta property="og:description" content="Con los cuatro reinos de Hawái divididos por la guerra, Ka’iana busca unir a su pueblo ante una amenaza existencial." />
+  <meta property="og:type" content="video.movie" />
+
+  <style>
+    :root{
+      --bg:#0b0f19;
+      --card:#111726;
+      --muted:#9aa4b2;
+      --primary:#3b82f6;
+      --warn:#f59e0b;
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;background:var(--bg);color:#e5e7eb;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    .backdrop{position:fixed;inset:0;background:#000 center/cover no-repeat;filter:brightness(0.45) blur(10px);transform:scale(1.05);z-index:-1;}
+    .overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(11,15,25,.6),rgba(11,15,25,.9));z-index:-1;}
+    .container{max-width:1100px;margin:auto;padding:24px}
+    header{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+    .poster{width:190px;flex:0 0 190px;border-radius:var(--radius);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.45);background:#0f172a;aspect-ratio:2/3;display:grid;place-items:center;}
+    .poster img{width:100%;height:100%;object-fit:cover;display:block}
+    .info{flex:1;min-width:260px}
+    h1{margin:0 0 8px;font-size:clamp(22px,3.2vw,34px);line-height:1.1}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}
+    .chip{padding:6px 10px;border-radius:999px;font-size:12.5px;background:rgba(59,130,246,.15);color:#cfe0ff;border:1px solid rgba(59,130,246,.35)}
+    .chip.warn{background:rgba(245,158,11,.12);color:#ffe2b3;border-color:rgba(245,158,11,.35)}
+    .overview{color:#d3d8e2;line-height:1.55}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .btn{border:none;cursor:pointer;border-radius:12px;padding:10px 14px;font-weight:600;transition:.2s transform;background:linear-gradient(180deg,var(--primary),#1d4ed8);color:white;}
+    .btn:hover{transform:translateY(-2px)}
+    .grid{margin-top:22px;display:grid;gap:16px;grid-template-columns:1fr}
+    @media (min-width:860px){.grid{grid-template-columns: 1.4fr .6fr;}}
+    .card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);backdrop-filter:blur(6px);}
+    .card h3{margin:0 0 10px;font-size:16px;color:#cbd5e1}
+    footer{opacity:.7;text-align:center;font-size:12px;margin:26px 0 8px}
+
+    /* Episodios */
+    .season{margin-bottom:18px}
+    .episodes{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .ep-btn{background:#1e293b;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;border:none;font-size:13px;transition:.2s}
+    .ep-btn:hover{background:#334155}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none;place-items:center;padding:16px;background:rgba(0,0,0,.9);z-index:50;}
+    .modal.open{display:grid}
+    .modal-content{width:100%;max-width:960px;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;position:relative;}
+    .modal .close{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+    video{width:100%;height:100%;background:#000;outline:none;}
+  </style>
+</head>
+<body>
+  <div class="backdrop" id="backdrop"></div>
+  <div class="overlay"></div>
+
+  <div class="container">
+    <header>
+      <figure class="poster">
+        <img id="poster" alt="Póster de la película" loading="lazy" />
+      </figure>
+      <div class="info">
+        <h1 id="title">El gran guerrero</h1>
+        <div class="meta">
+          <span class="chip warn" id="releaseTag"></span>
+          <span class="chip" id="categoryTag"></span>
+        </div>
+        <p class="overview" id="overview"></p>
+        <div class="actions">
+          <button class="btn" id="watchTrailer">▶ Ver tráiler</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h3>Géneros</h3>
+        <div id="genresWrap" class="meta"></div>
+        <h3 style="margin-top:14px">Descripción</h3>
+        <p id="overview2" class="overview small"></p>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <h3>Temporadas</h3>
+      <div id="seasons"></div>
+    </section>
+
+    <footer>© <span id="year"></span> CorpSRTony · Ficha generada</footer>
+  </div>
+
+  <!-- Modal Trailer -->
+  <div class="modal" id="trailerModal">
+    <div class="modal-content">
+      <button class="close" id="closeTrailer">✕</button>
+      <iframe id="ytFrame" width="100%" height="100%" src="" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- Modal Episodios -->
+  <div class="modal" id="videoModal">
+    <div class="modal-content">
+      <button class="close" id="closeVideo">✕</button>
+      <video id="videoPlayer" controls></video>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const data = {
+      "id": "196890",
+      "title": "El gran guerrero",
+      "overview": "Con los cuatro reinos de Hawái divididos por la guerra, el gran guerrero Ka’iana emprende la monumental misión de unir a su pueblo, a la vez que se acerca una amenaza existencial.",
+      "poster_path": "/qEcYaWKUUJITpp3hwTIGtgfHeEZ.jpg",
+      "backdrop_path": "/7UWoOvJZRqGxURZZQY8MtKGgZ9L.jpg",
+      "release_date": "2025-07-31",
+      "category": "Accion",
+      "trailer": "QCbzHZ1Q2lw",
+      "seasons": {
+        "1": {
+          "1": {"url": "http://files.corpsrtony.com/uploads/Testers.mp4"},
+          "2": {"url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"},
+          "3": {"url": "https://od.lk/s/MTVfNzIzNDAwNzZf/S01E03.mp4"}
+        },
+        "2": {
+          "1": {"url": "http://files.corpsrtony.com/uploads/Testers.mp4"},
+          "2": {"url": "http://files.corpsrtony.com/uploads/Testers.mp4"},
+          "3": {"url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"}
+        }
+      },
+      "genres": ["Drama"]
+    };
+
+    const TMDB_POSTER_BASE = "https://image.tmdb.org/t/p/w500";
+    const TMDB_BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
+
+    const $ = s => document.querySelector(s);
+    const create = (tag, props={}) => Object.assign(document.createElement(tag), props);
+
+    function formatDate(iso){
+      if(!iso) return "Fecha desconocida";
+      const d = new Date(iso+"T00:00:00");
+      return d.toLocaleDateString("es-CO",{year:'numeric',month:'long',day:'numeric'});
+    }
+
+    function renderMovie(m){
+      $('#poster').src = `${TMDB_POSTER_BASE}${m.poster_path}`;
+      $('#backdrop').style.backgroundImage = `url('${TMDB_BACKDROP_BASE}${m.backdrop_path}')`;
+      $('#title').textContent = m.title;
+      $('#releaseTag').textContent = `Estreno: ${formatDate(m.release_date)}`;
+      $('#categoryTag').textContent = `Categoría: ${m.category}`;
+      $('#overview').textContent = m.overview;
+      $('#overview2').textContent = m.overview;
+
+      const genresWrap = $('#genresWrap');
+      genresWrap.innerHTML = '';
+      m.genres.forEach(g => genresWrap.appendChild(create('span',{className:'chip',textContent:g})));
+
+      const seasons = $('#seasons');
+      seasons.innerHTML = '';
+      for(const s in m.seasons){
+        const seasonDiv = create('div',{className:'season'});
+        seasonDiv.appendChild(create('h4',{textContent:`Temporada ${s}`}));
+
+        const epsWrap = create('div',{className:'episodes'});
+        for(const e in m.seasons[s]){
+          const btn = create('button',{className:'ep-btn',textContent:`Episodio ${e}`});
+          btn.onclick = ()=>openVideo(m.seasons[s][e].url);
+          epsWrap.appendChild(btn);
+        }
+        seasonDiv.appendChild(epsWrap);
+        seasons.appendChild(seasonDiv);
+      }
+
+      // Trailer
+      $('#watchTrailer').onclick = ()=>openTrailer(m.trailer);
+    }
+
+    // Trailer modal
+    const trailerModal = $('#trailerModal');
+    function openTrailer(id){ $('#ytFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1`; trailerModal.classList.add('open'); }
+    function closeTrailer(){ trailerModal.classList.remove('open'); $('#ytFrame').src=''; }
+    $('#closeTrailer').onclick = closeTrailer;
+    trailerModal.addEventListener('click', e=>{ if(e.target===trailerModal) closeTrailer(); });
+
+    // Episodio modal con HLS.js
+    const videoModal = $('#videoModal');
+    const videoPlayer = $('#videoPlayer');
+    function openVideo(url){
+      if(Hls.isSupported() && url.endsWith('.m3u8')){
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(videoPlayer);
+      } else {
+        videoPlayer.src = url;
+      }
+      videoModal.classList.add('open');
+      videoPlayer.play();
+    }
+    function closeVideo(){
+      videoModal.classList.remove('open');
+      videoPlayer.pause();
+      videoPlayer.src='';
+    }
+    $('#closeVideo').onclick = closeVideo;
+    videoModal.addEventListener('click', e=>{ if(e.target===videoModal) closeVideo(); });
+
+    renderMovie(data);
+    $('#year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

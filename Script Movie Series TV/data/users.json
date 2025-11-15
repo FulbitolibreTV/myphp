@@ -1,0 +1,14 @@
+[
+  {
+    "username": "corpsrtony",
+    "name": "Administrador",
+    "role": "admin",
+    "password": "$2y$10$..."
+  },
+  {
+    "username": "crispro941",
+    "name": "Cristobal Paez",
+    "role": "editor",
+    "password": "$2y$10$..."
+  }
+]

@@ -1,0 +1,26 @@
+{
+    "admin": {
+        "password": "$2y$10$yv7AZIbgf9poSQSAbrDFQOIHCLFyv2VG31W5Y6LswPEwf66sVyTi.",
+        "role": "admin",
+        "profile_image": "perfil.png"
+    },
+    "editor": {
+        "password": "$2y$10$OvZyWAxSeZOuzDosj33tYObGfZ65s91yDor2D94T4BLAFHTlQpKQ.",
+        "role": "editor",
+        "profile_image": "perfil.png"
+    },
+    "tony": {
+        "name": "",
+        "pin": "1234",
+        "estado": "activo",
+        "vencimiento": "2025-10-05",
+        "role": "editor",
+        "profile_image": "perfil.png"
+    },
+    "corpsrtony": {
+        "password": "$2y$10$ePn7VgpQnmBLZgkNsQ7Qn.JCe8fVayYVdOhSByDZxk\/YD\/Ry\/J3.S",
+        "name": "Administrador",
+        "role": "super_admin",
+        "profile_image": "profiles\/corpsrtony.png"
+    }
+}
