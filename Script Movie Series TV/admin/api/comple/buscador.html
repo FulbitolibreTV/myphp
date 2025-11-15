@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Buscador Películas y Series - CorpSRTony</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0e0e0e;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  
+  .header {
+    text-align: center;
+    margin: 40px 0 50px 0;
+  }
+  
+  .header h1 {
+    color: #00ffe0;
+    margin: 0;
+    font-size: 2rem;
+    text-shadow: 0 0 10px rgba(0, 255, 224, 0.3);
+  }
+  
+  .header p {
+    color: #888;
+    margin: 10px 0 0 0;
+    font-size: 1rem;
+  }
+  
+  .search-box {
+    max-width: 600px;
+    margin: auto;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+  .search-box input {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid #222;
+    outline: none;
+    font-size: 1rem;
+    background: #1a1a1a;
+    color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .search-box input:focus {
+    border-color: #00ffe0;
+    box-shadow: 0 0 10px rgba(0, 255, 224, 0.2);
+  }
+  .search-box input::placeholder {
+    color: #666;
+  }
+  .search-box button {
+    background: #00ffe0;
+    color: #000;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 255, 224, 0.2);
+  }
+  .search-box button:hover {
+    background: #00e6d4;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 255, 224, 0.3);
+  }
+  .peliculas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 600px;
+    margin: 20px auto 40px;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #222;
+  }
+  .item:hover {
+    background: linear-gradient(135deg, #222 0%, #2a2a2a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 255, 224, 0.1);
+    border-color: #00ffe0;
+  }
+  .item img {
+    width: 65px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 255, 224, 0.2);
+    transition: box-shadow 0.3s ease;
+  }
+  .item:hover img {
+    box-shadow: 0 6px 16px rgba(0, 255, 224, 0.4);
+  }
+  .item span {
+    font-size: 1rem;
+    color: #ccc;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  .item:hover span {
+    color: #fff;
+  }
+  #mensaje {
+    text-align: center;
+    margin-top: 30px;
+    color: #888;
+    font-size: 1rem;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 30px auto;
+  }
+  
+  /* Botón atrás fijo */
+  #btn-atras {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: #00ffe0;
+    color: #000;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0 10px #00ffe0;
+    user-select: none;
+    z-index: 9999;
+    transition: all 0.3s ease;
+    font-family: 'Arial', sans-serif;
+  }
+  #btn-atras:hover {
+    background: #00e6d4;
+    transform: scale(1.05);
+  }
+
+  /* Responsive para móviles */
+  @media (max-width: 640px) {
+    body {
+      padding: 15px;
+    }
+    .header {
+      margin: 20px 0 30px 0;
+    }
+    .header h1 {
+      font-size: 1.6rem;
+    }
+    .search-box {
+      flex-direction: column;
+      margin-bottom: 25px;
+    }
+    .search-box button {
+      width: 100%;
+      padding: 14px;
+    }
+    .peliculas {
+      max-width: 100%;
+      margin: 15px 0 60px;
+    }
+    .item {
+      padding: 10px;
+    }
+    .item img {
+      width: 55px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎬 Buscador de Contenido</h1>
+  <p>Encuentra tus películas y series favoritas</p>
+</div>
+
+<div class="search-box">
+  <input type="text" id="buscar" placeholder="Escribe el título de una película o serie..." />
+  <button onclick="buscarContenido()">🔍 Buscar</button>
+</div>
+
+<div class="peliculas" id="contenedor"></div>
+<div id="mensaje">Escribe algo para buscar...</div>
+
+<script>
+const contenedor = document.getElementById('contenedor');
+const mensaje = document.getElementById('mensaje');
+const inputBuscar = document.getElementById('buscar');
+
+async function buscarContenido() {
+  const query = inputBuscar.value.trim().toLowerCase();
+  if (query.length < 2) {
+    mensaje.textContent = "Escribe al menos 2 caracteres...";
+    contenedor.innerHTML = '';
+    return;
+  }
+
+  mensaje.textContent = "🔍 Buscando contenido...";
+  contenedor.innerHTML = '';
+
+  try {
+    const [peliculasRes, seriesRes] = await Promise.all([
+      fetch("https://miweb.com/admin/api/movies.php").then(r => r.json()),
+      fetch("https://miweb.com/admin/api/seriesApi.php").then(r => r.json())
+    ]);
+
+    // PELÍCULAS: Convertir objeto a array (como antes)
+    const peliculasArray = Object.keys(peliculasRes).map(id => {
+      return {
+        id,
+        titulo: peliculasRes[id].title,
+        poster: peliculasRes[id].poster_path,
+        genres: peliculasRes[id].genres || [],
+        category: peliculasRes[id].category || '',
+        tipo: 'película'
+      };
+    });
+
+    // SERIES: Ya es un array, solo necesitamos mapearlo
+    const seriesArray = seriesRes.map(serie => {
+      return {
+        id: serie.id, // Usar directamente la ID del objeto
+        titulo: serie.title || serie.name,
+        poster: serie.poster_path,
+        genres: serie.genres || [],
+        category: serie.category || '',
+        tipo: 'serie'
+      };
+    });
+
+    // Unir todo
+    const todo = [...peliculasArray, ...seriesArray];
+
+    // Filtrar por texto en título, categoría o géneros
+    const filtrado = todo.filter(item => {
+      const q = query.toLowerCase();
+      const inTitle = item.titulo.toLowerCase().includes(q);
+      const inCategory = item.category.toLowerCase().includes(q);
+      const inGenres = item.genres.some(g => g.toLowerCase().includes(q));
+      return inTitle || inCategory || inGenres;
+    });
+
+    if (filtrado.length === 0) {
+      mensaje.textContent = "❌ No se encontraron resultados para tu búsqueda.";
+      return;
+    }
+
+    mensaje.textContent = `✅ Se encontraron ${filtrado.length} resultado${filtrado.length > 1 ? 's' : ''}`;
+
+    filtrado.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.onclick = () => window.location.href = `go:${item.id}`;
+
+      const img = document.createElement('img');
+      img.src = item.poster ? `https://image.tmdb.org/t/p/w200${item.poster}` : 'https://via.placeholder.com/65x98/333/ccc?text=Sin+Imagen';
+      img.alt = item.titulo;
+
+      const info = document.createElement('div');
+      const nombre = document.createElement('span');
+      const tipoIcon = item.tipo === 'película' ? '🎬' : '📺';
+      nombre.textContent = `${tipoIcon} ${item.titulo}`;
+      info.appendChild(nombre);
+
+      div.appendChild(img);
+      div.appendChild(info);
+      contenedor.appendChild(div);
+    });
+
+  } catch (error) {
+    console.error(error);
+    mensaje.textContent = "⚠️ Error de conexión. Intenta de nuevo.";
+  }
+}
+
+inputBuscar.addEventListener('input', () => {
+  if (inputBuscar.value.length >= 2) {
+    buscarContenido();
+  } else {
+    contenedor.innerHTML = '';
+    mensaje.textContent = "Escribe algo para buscar...";
+  }
+});
+
+// Efecto de focus automático al cargar la página
+window.addEventListener('load', () => {
+  inputBuscar.focus();
+});
+
+</script>
+
+</body>
+</html>

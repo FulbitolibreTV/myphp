@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎥 Cine SRTony</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0e0e0e;
+      color: #f1f1f1;
+      padding-bottom: 80px;
+      overflow-x: hidden;
+    }
+    header {
+      background: linear-gradient(90deg, #1a1a1a, #0f0f0f);
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(255, 99, 71, 0.2);
+    }
+    header .logo {
+      font-size: 1.3rem;
+      color: #ff6347;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    header .icons a {
+      color: #f1f1f1;
+      font-size: 1.2rem;
+      margin-left: 10px;
+      transition: transform 0.3s, color 0.3s;
+    }
+    header .icons a:hover {
+      transform: scale(1.2);
+      color: #ff6347;
+    }
+    h2 {
+      margin: 30px 20px 15px;
+      font-size: 1.5rem;
+      color: #ff6347;
+      padding-left: 10px;
+      border-left: 5px solid #ff6347;
+      cursor: pointer;
+    }
+    .movie-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      padding: 0 15px 40px;
+    }
+    .movie {
+      background: linear-gradient(160deg, #1a1a1a, #0d0d0d);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(255, 99, 71, 0.1);
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .movie:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(255, 99, 71, 0.3);
+    }
+    .movie img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+    footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #111;
+      padding: 10px;
+      text-align: center;
+      color: #aaa;
+      font-size: 13px;
+      border-top: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">🎥 Cine SRTony</div>
+    <div class="icons">
+      <a href="go:buscador" title="Buscar"><i class="fas fa-search"></i></a>
+      <a href="go:soporte" title="Soporte"><i class="fas fa-headset"></i></a>
+      <a href="go:favoritos" title="Favoritos"><i class="fas fa-heart"></i></a>
+      <a href="go:historial" title="Historial"><i class="fas fa-history"></i></a>
+    </div>
+  </header>
+
+  <div id="movie-sections"></div>
+
+  <footer>
+    <p>© 2025 SRTony Entretenimiento. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    const container = document.getElementById('movie-sections');
+
+    async function loadData() {
+      try {
+        const moviesRes = await fetch('{{site_url}}/data/movies.json');
+        const categoriesRes = await fetch('{{site_url}}/data/categories.json');
+        const movies = await moviesRes.json();
+        const categories = await categoriesRes.json();
+
+        const grouped = {};
+        Object.values(movies).forEach(movie => {
+          const cat = movie.category || 'Sin categoría';
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(movie);
+        });
+
+        Object.entries(grouped).forEach(([cat, movies]) => {
+          const section = document.createElement('div');
+          section.className = 'movie-category';
+
+          const title = document.createElement('h2');
+          title.innerHTML = `🎬 ${cat}`;
+          title.onclick = () => window.location.href = `go:${cat.toLowerCase()}`;
+          section.appendChild(title);
+
+          const row = document.createElement('div');
+          row.className = 'movie-list';
+
+          movies.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'movie';
+            card.onclick = () => window.location.href = `go:${m.id}`;
+
+            const img = document.createElement('img');
+            img.src = `https://image.tmdb.org/t/p/w500${m.poster_path}`;
+            img.alt = m.title;
+
+            card.appendChild(img);
+            row.appendChild(card);
+          });
+
+          section.appendChild(row);
+          container.appendChild(section);
+        });
+
+      } catch (err) {
+        alert("No hay conexión o datos disponibles.");
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>

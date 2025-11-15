@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Soporte - CorpSRTony</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet" />
+<style>
+body {margin:0;padding:20px;font-family:'Orbitron',sans-serif;background-color:#0e0e0e;color:#fff;font-size:14px;}
+h1{text-align:center;color:#00ffe0;text-shadow:0 0 5px #00ffe0;margin-bottom:20px;}
+p{text-align:center;max-width:600px;margin:0 auto 30px;line-height:1.6;color:#ccc;}
+.formulario{max-width:600px;margin:auto;background-color:#111;padding:20px;border-radius:12px;box-shadow:0 0 15px rgba(0,255,255,0.1);}
+label{display:block;margin-top:15px;font-weight:bold;color:#00ffe0;text-shadow:0 0 3px #00ffe0;}
+input,textarea,select{width:100%;padding:10px;margin-top:8px;border:none;border-radius:8px;background-color:#1c1c1c;color:white;font-size:1rem;box-shadow:inset 0 0 8px rgba(0,255,255,0.2);transition:box-shadow 0.3s;}
+input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 0 8px rgba(0,255,255,0.5);}
+textarea::placeholder,input::placeholder{color:#aaa;}
+.btn-enviar{display:block;margin:25px auto 0;padding:12px 25px;background:#00ffe0;color:#000;font-size:1.1rem;border:none;border-radius:8px;cursor:pointer;opacity:0.5;pointer-events:none;transition:all 0.3s ease;box-shadow:0 0 10px rgba(0,255,255,0.5);}
+.btn-enviar.activo{opacity:1;pointer-events:auto;transform:translateY(-2px);}
+.btn-enviar:hover.activo{background:#00e6d4;box-shadow:0 0 15px rgba(0,255,255,0.7);}
+</style>
+</head>
+<body>
+
+<h1>🚀 Soporte</h1>
+<p>Reporta errores, enlaces caídos, bugs, problemas visuales, solicita publicidad o cualquier otra consulta. El equipo de CorpSRTony te responderá pronto.</p>
+
+<div class="formulario">
+  <label for="tipo">¿Qué deseas reportar?</label>
+  <select id="tipo">
+    <option value="">Selecciona una opción</option>
+    <option value="Link caído">Link caído</option>
+    <option value="Publicidad">Publicidad</option>
+    <option value="Bug o error de carga">Bug o error de carga</option>
+    <option value="Problema visual o diseño">Problema visual o diseño</option>
+    <option value="Otro">Otro</option>
+  </select>
+
+  <div id="linkDiv" style="display:none;">
+    <label for="linkCaido">Nombre de la película o serie (mínimo 2 caracteres)</label>
+    <input type="text" id="linkCaido" placeholder="Escribe aquí...">
+  </div>
+
+  <div id="pubDiv" style="display:none;">
+    <label for="nombrePub">Tu nombre</label>
+    <input type="text" id="nombrePub" placeholder="Ej: Juan Perez">
+    <label for="contactoPub">Contacto (Telegram o WhatsApp)</label>
+    <input type="text" id="contactoPub" placeholder="Ej: @usuario o +573001234567">
+  </div>
+
+  <label for="mensaje">Describe el problema o consulta (mínimo 10 caracteres)</label>
+  <textarea id="mensaje" rows="6" placeholder="Ejemplo: La película X no se carga, probé en dos dispositivos diferentes y sigue igual."></textarea>
+
+  <button class="btn-enviar" id="btnEnviar">Enviar Reporte</button>
+</div>
+
+<script>
+const tipo = document.getElementById('tipo');
+const linkDiv = document.getElementById('linkDiv');
+const linkCaido = document.getElementById('linkCaido');
+const pubDiv = document.getElementById('pubDiv');
+const nombrePub = document.getElementById('nombrePub');
+const contactoPub = document.getElementById('contactoPub');
+const mensaje = document.getElementById('mensaje');
+const btn = document.getElementById('btnEnviar');
+
+function validar() {
+  let tipoElegido = tipo.value !== "";
+  let mensajeValido = mensaje.value.trim().length >= 10;
+  let linkValido = true;
+  let pubValido = true;
+
+  if(tipo.value === "Link caído"){
+    linkDiv.style.display = "block";
+    pubDiv.style.display = "none";
+    linkValido = linkCaido.value.trim().length >= 2;
+  } else if(tipo.value === "Publicidad"){
+    linkDiv.style.display = "none";
+    pubDiv.style.display = "block";
+    pubValido = nombrePub.value.trim() !== "" && contactoPub.value.trim() !== "";
+  } else {
+    linkDiv.style.display = "none";
+    pubDiv.style.display = "none";
+  }
+
+  if(tipoElegido && mensajeValido && linkValido && pubValido){
+    btn.classList.add('activo');
+  } else {
+    btn.classList.remove('activo');
+  }
+}
+
+tipo.addEventListener('change', validar);
+mensaje.addEventListener('input', validar);
+linkCaido.addEventListener('input', validar);
+nombrePub.addEventListener('input', validar);
+contactoPub.addEventListener('input', validar);
+
+btn.addEventListener('click', () => {
+  if(!btn.classList.contains('activo')) return;
+
+  const data = {
+    tipo: tipo.value,
+    linkCaido: tipo.value==="Link caído"?linkCaido.value.trim():"",
+    nombrePub: tipo.value==="Publicidad"?nombrePub.value.trim():"",
+    contactoPub: tipo.value==="Publicidad"?contactoPub.value.trim():"",
+    mensaje: mensaje.value.trim()
+  };
+
+  fetch('http://miweb.com/adminventa/admin/api/reportes.php', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(data)
+  })
+  .then(res=>res.json())
+  .then(res=>{
+    if(res.success){
+      alert("✅ Tu reporte fue guardado correctamente");
+      mensaje.value = "";
+      linkCaido.value = "";
+      nombrePub.value = "";
+      contactoPub.value = "";
+      tipo.value = "";
+      validar();
+    } else {
+      alert("❌ Error al guardar el reporte: "+(res.error||""));
+    }
+  })
+  .catch(err=>{
+    alert("❌ Error de conexión");
+    console.error(err);
+  });
+});
+</script>
+
+</body>
+</html>

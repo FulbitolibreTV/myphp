@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Favoritos - Cine SRTony</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+body {
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
+  background-color: #0e0e0e;
+  color: #fff;
+  padding: 20px;
+  font-size: 14px;
+}
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #00ffe0;
+  text-shadow: 0 0 5px #00ffe0;
+}
+.secciones {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.seccion-btn {
+  padding: 10px 20px;
+  background-color: #111;
+  color: #ccc;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 0 10px rgba(0,255,255,0.1);
+}
+.seccion-btn:hover {
+  background-color: #191919;
+  transform: translateY(-2px);
+}
+.seccion-btn.active {
+  background-color: #00ffe0;
+  color: #0e0e0e;
+  box-shadow: 0 0 15px rgba(0,255,224,0.3);
+}
+.favoritos {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #111;
+  padding: 10px;
+  border-radius: 12px;
+  transition: background 0.3s, transform 0.3s;
+  box-shadow: 0 0 15px rgba(0,255,255,0.15);
+}
+.item:hover {
+  background-color: #191919;
+  transform: translateY(-2px);
+}
+.item-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+}
+.item img {
+  width: 70px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,255,255,0.2);
+}
+.item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.item-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ccc;
+}
+.item-type {
+  font-size: 0.8rem;
+  color: #888;
+  font-style: italic;
+}
+.item i {
+  color: #ff0040;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+.item i:hover {
+  transform: scale(1.2);
+}
+.no-favoritos {
+  text-align: center;
+  font-size: 1.1rem;
+  margin-top: 40px;
+  color: #888;
+}
+.loading {
+  text-align: center;
+  color: #00ffe0;
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+<h1>Mis Favoritos</h1>
+
+<div class="secciones">
+  <button class="seccion-btn active" onclick="mostrarSeccion('todo')" id="btn-todo">Todo</button>
+  <button class="seccion-btn" onclick="mostrarSeccion('peliculas')" id="btn-peliculas">Películas</button>
+  <button class="seccion-btn" onclick="mostrarSeccion('series')" id="btn-series">Series</button>
+</div>
+
+<div class="loading" id="loading" style="display: none;">
+  <i class="fas fa-spinner fa-spin"></i> Cargando favoritos...
+</div>
+
+<div class="favoritos" id="contenedor"></div>
+<div class="no-favoritos" id="mensajeVacio">No tienes favoritos aún.</div>
+
+<script>
+const contenedor = document.getElementById('contenedor');
+const mensajeVacio = document.getElementById('mensajeVacio');
+const loading = document.getElementById('loading');
+
+// Obtener favoritos del localStorage (sistema unificado)
+const todosFavoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
+
+let todosLosFavoritos = [];
+let seccionActual = 'todo';
+
+function mostrarSeccion(seccion) {
+  // Actualizar botones
+  document.querySelectorAll('.seccion-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(`btn-${seccion}`).classList.add('active');
+  
+  seccionActual = seccion;
+  
+  // Filtrar y mostrar contenido
+  const contenidoFiltrado = filtrarPorSeccion(todosLosFavoritos, seccion);
+  mostrarFavoritos(contenidoFiltrado);
+}
+
+function filtrarPorSeccion(favoritos, seccion) {
+  if (seccion === 'todo') return favoritos;
+  return favoritos.filter(item => item.tipo === seccion);
+}
+
+function eliminarFavorito(id, tipo, elemento) {
+  // Eliminar del array unificado
+  let nuevosFavoritos = todosFavoritos.filter(fav => fav != id);
+  localStorage.setItem('favoritos', JSON.stringify(nuevosFavoritos));
+  todosFavoritos.length = 0;
+  todosFavoritos.push(...nuevosFavoritos);
+  
+  // Actualizar array principal
+  todosLosFavoritos = todosLosFavoritos.filter(item => !(item.id == id && item.tipo === tipo));
+  
+  // Quitar del DOM
+  elemento.remove();
+  
+  // Verificar si mostrar mensaje vacío
+  const contenidoFiltrado = filtrarPorSeccion(todosLosFavoritos, seccionActual);
+  if (contenidoFiltrado.length === 0) {
+    mensajeVacio.style.display = 'block';
+  }
+}
+
+function mostrarFavoritos(favoritos) {
+  contenedor.innerHTML = '';
+  
+  if (favoritos.length === 0) {
+    mensajeVacio.style.display = 'block';
+    return;
+  }
+  
+  mensajeVacio.style.display = 'none';
+  
+  favoritos.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'item';
+    
+    const info = document.createElement('div');
+    info.className = 'item-info';
+    info.onclick = () => window.location.href = `go:${item.id}`;
+    
+    const img = document.createElement('img');
+    img.src = `https://image.tmdb.org/t/p/w200${item.poster_path}`;
+    img.alt = item.title;
+    
+    const content = document.createElement('div');
+    content.className = 'item-content';
+    
+    const nombre = document.createElement('div');
+    nombre.className = 'item-title';
+    nombre.textContent = item.title;
+    
+    const tipoLabel = document.createElement('div');
+    tipoLabel.className = 'item-type';
+    tipoLabel.textContent = item.tipo === 'peliculas' ? '🎬 Película' : '📺 Serie';
+    
+    const trash = document.createElement('i');
+    trash.className = 'fas fa-trash';
+    trash.title = 'Eliminar favorito';
+    trash.onclick = (e) => {
+      e.stopPropagation();
+      eliminarFavorito(item.id, item.tipo, div);
+    };
+    
+    content.appendChild(nombre);
+    content.appendChild(tipoLabel);
+    info.appendChild(img);
+    info.appendChild(content);
+    div.appendChild(info);
+    div.appendChild(trash);
+    contenedor.appendChild(div);
+  });
+}
+
+async function cargarFavoritos() {
+  if (todosFavoritos.length === 0) {
+    mensajeVacio.style.display = 'block';
+    return;
+  }
+  
+  loading.style.display = 'block';
+  todosLosFavoritos = [];
+  
+  // Cargar cada ID intentando primero como película y luego como serie
+  const promesas = todosFavoritos.slice(0, 15).map(async (id) => {
+    // Primero intentar como película
+    try {
+      const response = await fetch(`http://localhost/adminventa/admin/api/moviespe.php?id=${id}`);
+      const data = await response.json();
+      if (data.status !== "error" && data.title) {
+        return {
+          id: id,
+          title: data.title,
+          poster_path: data.poster_path,
+          tipo: 'peliculas'
+        };
+      }
+    } catch (error) {
+      // Si falla como película, intentar como serie
+    }
+    
+    // Si no es película, intentar como serie
+    try {
+      const response = await fetch(`http://localhost/adminventa/admin/api/seriesConnect.php?id=${id}`);
+      const data = await response.json();
+      
+      // Verificar diferentes formatos de respuesta de series
+      let serieData = data;
+      if (data.data && data.data.serie) {
+        serieData = data.data.serie;
+      }
+      
+      if (!data.error && serieData && (serieData.title || serieData.name)) {
+        return {
+          id: id,
+          title: serieData.title || serieData.name || `Serie ${id}`,
+          poster_path: serieData.poster_path,
+          tipo: 'series'
+        };
+      }
+    } catch (error) {
+      console.log(`No se pudo cargar como serie: ${id}`);
+    }
+    
+    return null;
+  });
+  
+  // Esperar a que se carguen todas las promesas
+  const resultados = await Promise.all(promesas);
+  
+  // Filtrar resultados válidos
+  todosLosFavoritos = resultados.filter(item => item !== null);
+  
+  loading.style.display = 'none';
+  
+  // Mostrar favoritos según la sección actual
+  const contenidoFiltrado = filtrarPorSeccion(todosLosFavoritos, seccionActual);
+  mostrarFavoritos(contenidoFiltrado);
+}
+
+// Cargar favoritos al iniciar la página
+cargarFavoritos();
+</script>
+</body>
+</html>

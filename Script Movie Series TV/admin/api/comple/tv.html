@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title id="pageTitle">📺 CorpSRTony TV</title>
+<link rel="icon" id="pageFavicon" href="assets/favicon.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+body { background:#000; color:#fff; font-family:'Orbitron', sans-serif; margin:0; padding:0; }
+header { background:#1a1a3f; padding:15px 25px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 0 15px #00f0ff80; }
+header .logo { font-size:1.8rem; font-weight:800; color:#0ff; text-shadow:0 0 8px #0ff, 0 0 15px #0ff; cursor:pointer; }
+
+/* Barra de navegación rápida */
+.top-nav-categorias { background:#111; color:#0ff; text-align:center; padding:15px 10px 5px; box-shadow:0 4px 12px #0ff40; font-size:1rem; }
+.top-nav-categorias p { margin:0; font-weight:600; }
+.top-nav-categorias .nav-enlaces { margin-top:8px; display:flex; justify-content:center; gap:30px; flex-wrap: wrap; }
+.top-nav-categorias .nav-enlaces a { color:#0ff; text-decoration:none; font-size:1.2rem; transition:0.3s; }
+.top-nav-categorias .nav-enlaces a:hover { color:#ff0; text-shadow:0 0 10px #ff0; }
+
+.container { max-width:1200px; margin:20px auto; padding:0 15px; }
+
+/* Estado de carga */
+.loading { text-align:center; padding:50px; }
+.loading-spinner { font-size:3rem; animation:spin 1s linear infinite; }
+@keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+
+.error { background:#dc3545; color:white; padding:15px; border-radius:10px; margin:20px 0; text-align:center; }
+
+.main-video { background:#111; border:2px solid #333; border-radius:10px; padding:10px; margin-bottom:20px; position:relative; }
+.main-video video { width:100%; border-radius:10px; background:#000; display:none; }
+#placeholder { width:100%; border-radius:10px; display:block; }
+
+/* Título y mensaje de carga */
+.title { text-align:center; font-size:18px; margin-top:10px; }
+.loading-message { text-align:center; color:#f39c12; font-weight:bold; margin-top:5px; display:none; }
+
+/* Estadísticas */
+.stats { background:#1a1a1a; padding:15px; border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-around; flex-wrap:wrap; text-align:center; }
+.stat-item { margin:5px; }
+.stat-number { font-size:1.5rem; font-weight:bold; color:#0ff; }
+.stat-label { font-size:0.9rem; opacity:0.8; }
+
+/* Buscador + botón favoritos */
+.search { margin-bottom:10px; display:flex; justify-content:center; align-items:center; gap:10px; }
+.search input { padding:8px 12px; border-radius:20px; border:none; width:75%; font-size:16px; }
+.search button { background:#f39c12; border:none; border-radius:50%; width:40px; height:40px; font-size:20px; cursor:pointer; color:#fff; }
+.search button.active { background:#ff6b35; }
+
+/* Categorías de canales */
+.category-filter { margin-bottom:20px; text-align:left; overflow-x:auto; white-space:nowrap; padding:5px 0; }
+.category-filter a { color:#0ff; text-decoration:none; font-size:1.1rem; display:inline-block; margin:0 5px; padding:5px 10px; border-radius:5px; border:1px solid transparent; transition:0.3s; }
+.category-filter a:hover, .category-filter a.active { color:#ff0; border-color:#ff0; text-shadow:0 0 10px #ff0; }
+
+/* Lista de canales */
+.channel { display:flex; background:#1a1a1a; padding:10px; margin-bottom:10px; border-radius:10px; align-items:center; }
+.channel img { width:60px; height:60px; margin-right:10px; object-fit:cover; cursor:pointer; border-radius:5px; }
+.channel-info { flex:1; cursor:pointer; }
+.channel-info strong { display:block; margin-bottom:3px; }
+.live-badge { background:red; color:white; font-size:10px; padding:2px 6px; border-radius:6px; margin-left:5px; animation:pulse 2s infinite; }
+@keyframes pulse { 0%{opacity:1} 50%{opacity:0.6} 100%{opacity:1} }
+.buttons { display:flex; flex-direction:column; gap:5px; }
+.btn { background:#007bff; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:12px; }
+.btn.fav { background:#f39c12; }
+.btn.fav.active { background:#ff6b35; }
+
+/* Mensaje cuando no hay canales */
+.no-channels { text-align:center; padding:50px; color:#666; }
+.no-channels i { font-size:3rem; margin-bottom:10px; }
+
+footer { background:#000; text-align:center; color:#0ff; font-size:1rem; padding:20px; margin-top:50px; box-shadow:0 0 15px #0ff80; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stats { flex-direction:column; }
+  .search { flex-direction:column; gap:10px; }
+  .search input { width:100%; }
+  .top-nav-categorias .nav-enlaces { gap:15px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" id="siteLogo">📺 CorpSRTony TV</div>
+</header>
+
+<!-- Barra de navegación rápida -->
+<div class="top-nav-categorias">
+    <p>📺 Navega por nuestras secciones:</p>
+    <div class="nav-enlaces">
+        <a href="go:peliculas" title="Películas"><i class="fas fa-film"></i> Películas</a>
+        <a href="go:series" title="Series"><i class="fas fa-clapperboard"></i> Series</a>
+        <a href="go.tv" title="TV en Vivo"><i class="fas fa-tv"></i> TV</a>
+    </div>
+</div>
+
+<div class="container">
+  <!-- Estado de carga -->
+  <div class="loading" id="loadingState">
+    <div class="loading-spinner">📡</div>
+    <p>Cargando canales de televisión...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <!-- Error eliminado -->
+
+  <!-- Contenido principal -->
+  <div id="mainContent" style="display:none">
+    <!-- Estadísticas eliminadas -->
+
+    <!-- Reproductor principal -->
+    <div class="main-video">
+      <img id="placeholder" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjrWXlALDZ1GH4lK5QPiglCp6h1ockN-eMVMDXn63PcXvEjzcijPbx-MT5zsqjh280HIIyrnCzIIKCjuj6zYpwmY4FZiBI1vkCU0oSBWyrWIt4qD7_Ck0yEFMEIRQEs4z2pBSHTjg_DtD3o-TQUN2-3xQv-VAs8_r6yHoEtQLFTH-GQ46QAFFSjUcYV12wm/s320/Efecto-de-tv-sin-se%C3%B1al.-Pantalla-verde..gif" alt="Pantalla sin señal">
+      <video id="videoPlayer" controls></video>
+      <div class="title" id="videoTitle">Selecciona un canal para comenzar</div>
+      <div class="loading-message" id="loadingMessage">🔄 Cargando canal, espere un momento...</div>
+    </div>
+
+    <!-- Buscador + Favoritos -->
+    <div class="search">
+      <input type="text" id="searchInput" placeholder="🔎 Buscar canal...">
+      <button id="favoritesBtn" onclick="toggleFavoritesOnly()" title="Mostrar Solo Favoritos">❤️</button>
+    </div>
+
+    <!-- Categorías de canales -->
+    <div class="category-filter" id="categoryNav"></div>
+
+    <!-- Lista de canales -->
+    <div id="channelList"></div>
+
+    <!-- Mensaje cuando no hay canales -->
+    <div class="no-channels" id="noChannels" style="display:none">
+      <i class="fas fa-tv-slash"></i>
+      <h3>No se encontraron canales guardados</h3>
+      <p>para guardar deve agregarlo a favoritos</p>
+    </div>
+  </div>
+</div>
+
+<footer id="siteFooter">© 2025 CorpSRTony TV. Todos los derechos reservados.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+// ======================
+// CONFIGURACIÓN Y VARIABLES GLOBALES
+// ======================
+const API_URL = "http://localhost/adminventa/admin/api/tvconnect.php";
+const video = document.getElementById("videoPlayer");
+const placeholder = document.getElementById("placeholder");
+const videoTitle = document.getElementById("videoTitle");
+const loadingMessage = document.getElementById("loadingMessage");
+const loadingState = document.getElementById("loadingState");
+const errorState = document.getElementById("errorState");
+const mainContent = document.getElementById("mainContent");
+
+let hls = null;
+let channels = [];
+let siteConfig = {};
+let categories = [];
+let stats = {};
+let favorites = JSON.parse(localStorage.getItem("tv_favorites")) || [];
+let showFavoritesOnly = false;
+let currentCategory = 'all';
+
+// ======================
+// FUNCIONES DE CARGA DE DATOS
+// ======================
+async function loadTVData() {
+  try {
+    console.log('🔄 Cargando datos de TV...');
+    const response = await fetch(API_URL);
+    
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.error) {
+      throw new Error(data.message);
+    }
+    
+    // Asignar datos globales
+    channels = data.data.channels || [];
+    categories = data.data.categories || [];
+    stats = data.data.stats || {};
+    siteConfig = data.data.site_config || {};
+    
+    console.log('✅ Datos cargados:', {
+      canales: channels.length,
+      categorias: categories.length
+    });
+    
+    // Aplicar configuración del sitio
+    applySiteConfig();
+    
+    // Inicializar interfaz
+    initializeInterface();
+    
+    // Mostrar contenido principal
+    loadingState.style.display = 'none';
+    mainContent.style.display = 'block';
+    
+  } catch (error) {
+    console.error('Error al cargar datos:', error);
+    // En caso de error, mostrar contenido vacío en lugar de mensaje de error
+    loadingState.style.display = 'none';
+    mainContent.style.display = 'block';
+  }
+}
+
+function applySiteConfig() {
+  // Título y favicon
+  if (siteConfig.site_name) {
+    document.getElementById('pageTitle').textContent = siteConfig.site_name;
+    document.getElementById('siteLogo').textContent = siteConfig.site_name;
+  }
+  
+  if (siteConfig.favicon) {
+    document.getElementById('pageFavicon').href = siteConfig.favicon;
+  }
+  
+  if (siteConfig.footer) {
+    document.getElementById('siteFooter').textContent = siteConfig.footer;
+  }
+  
+  // Colores personalizados
+  if (siteConfig.main_color || siteConfig.header_color) {
+    const style = document.createElement('style');
+    let customCSS = '';
+    
+    if (siteConfig.main_color) {
+      customCSS += `body { background: ${siteConfig.main_color}; }`;
+    }
+    
+    if (siteConfig.header_color) {
+      customCSS += `header { background: ${siteConfig.header_color}; }`;
+    }
+    
+    style.textContent = customCSS;
+    document.head.appendChild(style);
+  }
+}
+
+function initializeInterface() {
+  createCategoryButtons();
+  renderChannels();
+  
+  // Event listeners
+  document.getElementById("searchInput").addEventListener("input", renderChannels);
+  
+  console.log('Interfaz inicializada correctamente');
+}
+
+function showError(message) {
+  loadingState.style.display = 'none';
+  errorState.style.display = 'block';
+  document.getElementById('errorMessage').textContent = message;
+}
+
+// ======================
+// FUNCIONES DE INTERFAZ
+// ======================
+function updateStats() {
+  document.getElementById('totalChannels').textContent = stats.total_channels || channels.length;
+  document.getElementById('totalCategories').textContent = categories.length;
+}
+
+function createCategoryButtons() {
+  const catNav = document.getElementById("categoryNav");
+  catNav.innerHTML = '';
+  
+  // Botón "Todas"
+  const allBtn = document.createElement("a");
+  allBtn.href = "#";
+  allBtn.textContent = "Todas";
+  allBtn.classList.add("active");
+  allBtn.onclick = (e) => {
+    e.preventDefault();
+    filterCategory('all');
+  };
+  catNav.appendChild(allBtn);
+  
+  // Botones de categorías
+  categories.forEach(cat => {
+    const a = document.createElement("a");
+    a.href = "#";
+    a.textContent = cat;
+    a.onclick = (e) => {
+      e.preventDefault();
+      filterCategory(cat);
+    };
+    catNav.appendChild(a);
+  });
+}
+
+function filterCategory(category) {
+  currentCategory = category.toLowerCase();
+  
+  // Actualizar botones activos
+  document.querySelectorAll('#categoryNav a').forEach(a => a.classList.remove('active'));
+  const activeLink = Array.from(document.querySelectorAll('#categoryNav a')).find(a => 
+    a.textContent.toLowerCase() === category.toLowerCase() || 
+    (category === 'all' && a.textContent.toLowerCase() === 'todas')
+  );
+  if (activeLink) activeLink.classList.add('active');
+  
+  renderChannels();
+}
+
+function renderChannels() {
+  const container = document.getElementById("channelList");
+  const noChannelsMsg = document.getElementById("noChannels");
+  container.innerHTML = "";
+  
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  
+  const filtered = channels.filter(channel => {
+    const matchesSearch = channel.name.toLowerCase().includes(query) || 
+                         (channel.category && channel.category.toLowerCase().includes(query));
+    const matchesCat = currentCategory === 'all' ? true : 
+                      channel.category && channel.category.toLowerCase() === currentCategory;
+    const isFav = favorites.includes(channel.name);
+    
+    return (showFavoritesOnly ? isFav && matchesSearch : matchesSearch) && matchesCat;
+  });
+
+  if (filtered.length === 0) {
+    noChannelsMsg.style.display = 'block';
+    return;
+  } else {
+    noChannelsMsg.style.display = 'none';
+  }
+
+  filtered.forEach(channel => {
+    const isFav = favorites.includes(channel.name);
+    const div = document.createElement("div");
+    div.className = "channel";
+    div.innerHTML = `
+      <img src="${channel.image}" 
+           alt="${channel.name}" 
+           onerror="console.log('Error cargando imagen:', '${channel.image}'); this.src='https://via.placeholder.com/60x60/333/fff?text=TV'"
+           onload="console.log('Imagen cargada:', '${channel.image}')"
+           onclick='loadChannel(${JSON.stringify(channel).replace(/'/g, "&apos;")})'>
+      <div class="channel-info" onclick='loadChannel(${JSON.stringify(channel).replace(/'/g, "&apos;")})'>
+        <strong>${channel.name}</strong>
+        ${channel.category ? `<small style="color:#888">${channel.category}</small>` : ''}
+        <span class="live-badge">EN VIVO</span>
+      </div>
+      <div class="buttons">
+        <button class="btn fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${channel.name.replace(/'/g, "&apos;")}')">${isFav ? '★ Quitar' : '☆ Favorito'}</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ======================
+// FUNCIONES DE REPRODUCCIÓN
+// ======================
+function loadChannel(channel) {
+  console.log('🎬 Cargando canal:', channel.name);
+  
+  placeholder.style.display = "none";
+  video.style.display = "block";
+  videoTitle.textContent = channel.name;
+  loadingMessage.style.display = "block";
+  
+  // Limpiar HLS anterior
+  if (hls) {
+    hls.destroy();
+  }
+  
+  if (Hls.isSupported()) {
+    hls = new Hls();
+    hls.loadSource(channel.url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      video.play().catch(e => console.log('Autoplay bloqueado:', e));
+    });
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      console.error('Error HLS:', data);
+      loadingMessage.textContent = '❌ Error al cargar el canal';
+      setTimeout(() => loadingMessage.style.display = 'none', 5000);
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = channel.url;
+    video.play().catch(e => console.log('Autoplay bloqueado:', e));
+  } else {
+    loadingMessage.textContent = '❌ Tu navegador no soporta este formato';
+    setTimeout(() => loadingMessage.style.display = 'none', 5000);
+    return;
+  }
+  
+  // Ocultar mensaje de carga después de un tiempo
+  video.addEventListener('playing', () => {
+    setTimeout(() => loadingMessage.style.display = 'none', 2000);
+  }, { once: true });
+  
+  setTimeout(() => loadingMessage.style.display = 'none', 10000);
+  
+  // Agregar al historial de TV
+  addToTVHistory(channel);
+}
+
+// ======================
+// FUNCIONES DE FAVORITOS
+// ======================
+function toggleFavorite(channelName) {
+  const index = favorites.indexOf(channelName);
+  if (index > -1) {
+    favorites.splice(index, 1);
+    console.log('❤️ Removido de favoritos:', channelName);
+  } else {
+    if (favorites.length >= 20) {
+      alert("⚠️ Solo puedes guardar hasta 20 canales favoritos.");
+      return;
+    }
+    favorites.push(channelName);
+    console.log('💖 Agregado a favoritos:', channelName);
+  }
+  
+  localStorage.setItem("tv_favorites", JSON.stringify(favorites));
+  updateStats();
+  renderChannels();
+}
+
+function toggleFavoritesOnly() {
+  showFavoritesOnly = !showFavoritesOnly;
+  const btn = document.getElementById("favoritesBtn");
+  
+  if (showFavoritesOnly) {
+    btn.classList.add('active');
+    btn.title = "Mostrar Todos los Canales";
+  } else {
+    btn.classList.remove('active');
+    btn.title = "Mostrar Solo Favoritos";
+  }
+  
+  document.getElementById("searchInput").value = "";
+  renderChannels();
+}
+
+// ======================
+// HISTORIAL DE TV
+// ======================
+function addToTVHistory(channel) {
+  let tvHistory = JSON.parse(localStorage.getItem('tv_history') || '[]');
+  
+  // Remover duplicados
+  tvHistory = tvHistory.filter(item => item.name !== channel.name);
+  
+  // Agregar al inicio
+  tvHistory.unshift({
+    name: channel.name,
+    category: channel.category || 'Sin categoría',
+    image: channel.image || '',
+    url: channel.url,
+    fechaVisto: new Date().toISOString(),
+    tipo: 'tv'
+  });
+  
+  // Mantener solo los últimos 30
+  if (tvHistory.length > 30) {
+    tvHistory = tvHistory.slice(0, 30);
+  }
+  
+  localStorage.setItem('tv_history', JSON.stringify(tvHistory));
+  console.log('📺 Canal agregado al historial:', channel.name);
+}
+
+// ======================
+// INICIALIZACIÓN
+// ======================
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Iniciando aplicación de TV...');
+  loadTVData();
+});
+
+// Función global para debugging
+window.debugTV = () => {
+  console.log('📊 Estado de la aplicación:', {
+    canales: channels.length,
+    favoritos: favorites.length,
+    categoria: currentCategory,
+    soloFavoritos: showFavoritesOnly
+  });
+};
+</script>
+
+</body>
+</html>
