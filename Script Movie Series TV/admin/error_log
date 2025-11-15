@@ -1,0 +1,9 @@
+[12-Jul-2025 16:18:18 America/Caracas] PHP Warning:  Undefined array key "bot_token" in /home2/corpsrt2/public_html/prueba.corpsrtony.com/admin/telegram_publicar.php on line 24
+[12-Jul-2025 16:18:18 America/Caracas] PHP Warning:  Undefined array key "chat_id" in /home2/corpsrt2/public_html/prueba.corpsrtony.com/admin/telegram_publicar.php on line 25
+[12-Jul-2025 16:18:18 America/Caracas] PHP Warning:  Undefined array key "base_url" in /home2/corpsrt2/public_html/prueba.corpsrtony.com/admin/telegram_publicar.php on line 26
+[12-Jul-2025 16:18:28 America/Caracas] PHP Warning:  Undefined array key "bot_token" in /home2/corpsrt2/public_html/prueba.corpsrtony.com/admin/telegram_publicar.php on line 24
+[12-Jul-2025 16:18:28 America/Caracas] PHP Warning:  Undefined array key "chat_id" in /home2/corpsrt2/public_html/prueba.corpsrtony.com/admin/telegram_publicar.php on line 25
+[12-Jul-2025 16:18:28 America/Caracas] PHP Warning:  Undefined array key "base_url" in /home2/corpsrt2/public_html/prueba.corpsrtony.com/admin/telegram_publicar.php on line 26
+[12-Jul-2025 16:18:54 America/Caracas] PHP Warning:  Undefined array key "bot_token" in /home2/corpsrt2/public_html/prueba.corpsrtony.com/admin/telegram_publicar.php on line 24
+[12-Jul-2025 16:18:54 America/Caracas] PHP Warning:  Undefined array key "chat_id" in /home2/corpsrt2/public_html/prueba.corpsrtony.com/admin/telegram_publicar.php on line 25
+[12-Jul-2025 16:18:54 America/Caracas] PHP Warning:  Undefined array key "base_url" in /home2/corpsrt2/public_html/prueba.corpsrtony.com/admin/telegram_publicar.php on line 26
